@@ -1,0 +1,16 @@
+describe("effect",()=>{
+  it('happy path',()=>{
+    cosnt user= reactive({
+      age:10
+    })
+    let nextAge;
+    effect(()=>{
+      nextAge-user.age+1
+    })
+    
+  })
+  expect(nextAge).toBe(11)
+  //更新触发依赖
+  user.age++
+  expect(nextAge).toBe(12)
+})
