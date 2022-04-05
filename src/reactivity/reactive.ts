@@ -1,3 +1,5 @@
+import {track,trigger} from './effect'
+
 export function reactive(raw){
   return  new Proxy(raw,{
     get(target,key){
@@ -9,6 +11,7 @@ export function reactive(raw){
     set(target,key,value){
         const res=Reflect.set(target,key,value);
     //TODD 触发依赖
+    trigger(target,key)
     return res
     }
   })
