@@ -7,11 +7,11 @@ class ComputedRefImpl {
     private _effect: any
     constructor(getter) {
         this._gertter = getter;
-        this._effect = new ReactiveEffect(getter,()=>{
-            if(this._dirty){
-                this._dirty=true
+        this._effect = new ReactiveEffect(getter, () => {
+            if (this._dirty) {
+                this._dirty = true
             }
-           
+
         })
     }
     get value() {
