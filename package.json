@@ -9,9 +9,9 @@
   },
   "dependencies": {
     "@babel/core": "^7.17.8",
-    "@babel/preset-env": "^7.16.11",
+    "@babel/preset-env": "i^7.16.11",
     "@babel/preset-typescript": "^7.16.7",
-    "@rollup/plugin-typescript": "^8.3.1",
+      "@rollup/plugin-typescript": "^8.3.1",
     "@types/jest": "^27.4.1",
     "babel-jest": "^27.5.1",
     "jest": "^27.5.1",
