@@ -54,7 +54,8 @@ function mountElement(vnode:any,container:any){
  }
 function setuoRenderEffect(instance:any,container:any){
     //虚拟节点树（vnode 元素类型  mountElement）path 
-    const subTree=instance.render();
+    const {proxy}=instance
+    const subTree=instance.render.call(proxy);
     path(subTree,container)
 }
 

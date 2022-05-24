@@ -2,12 +2,14 @@
 export function createComponentInstance(vnode: any) {
     const component = {
         vnode,
-        type:vnode.type
+        type:vnode.type,
+        setupState:{}
     };
 
     return component
 }
 export function setupComponent(instance) {
+  
     //初始化 props
     // initProps()
     //初始化插槽
@@ -17,6 +19,15 @@ export function setupComponent(instance) {
 }
 function setupStatefulComponent(instance: any) {
     const Component = instance.type;
+      //代理对象
+    instance.proxy=new Proxy({},{
+        get(target,key){
+            const {setupState}=instance
+            if(key in setupState){
+                return setupState[key]
+            }
+        }
+    })
     //拿到setup
     const { setup } = Component
     if (setup) {
