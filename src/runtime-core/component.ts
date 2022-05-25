@@ -1,13 +1,15 @@
 import { initProps } from "./componentProps";
 import {PublicInstanceProxyHandlers} from './componentPubilcInstance'
+import { emit } from "./compontentEmit";
 export function createComponentInstance(vnode: any) {
     const component = {
         vnode,
         type:vnode.type,
         setupState:{},
-        props:{}
-    };
-
+        props:{},
+        emit:()=>{}
+    }; 
+    component.emit=emit.bind(null,component) as any
     return component
 }
 export function setupComponent(instance) {
@@ -27,7 +29,9 @@ function setupStatefulComponent(instance: any) {
     //拿到setup
     const { setup } = Component
     if (setup) {
-        const setupResult= setup(instance.props);
+        const setupResult= setup(instance.props,{
+            emit:instance.emit
+        });
         handleSetupResult(instance,setupResult)
     }
 }
