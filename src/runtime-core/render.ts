@@ -2,20 +2,20 @@ import { setupComponent } from "./component";
 import { createComponentInstance } from "./component"
 import { createVNode } from "./vnode";
 
-export function render(vnode,container){
+export function render(vnode,container,parentComponent){
     //path (方便递归处理)
     //
-    path(vnode,container)
+    path(vnode,container,parentComponent)
  }
 
- function path(vnode,container){
+ function path(vnode,container,parentComponent){
       //判断是不是元素类型(element)
    
     //处理组件 如何区分element还是component 类型
     if(vnode.type=='string'){
       processElement(vnode ,container)
     }else if(vnode.tyoe=='object'){
-      processComponent(vnode,container);
+      processComponent(vnode,container,parentComponent);
     }
     
    
@@ -40,14 +40,14 @@ function mountElement(vnode:any,container:any){
   }
   container.append(el)
 }
- function processComponent(vnode:any,container:any){
+ function processComponent(vnode:any,container:any,parentComponent:any){
      //挂载组件
-     mountComponent(vnode,container)
+     mountComponent(vnode,container,parentComponent)
  }
 
- function mountComponent(vnode:any,container:any){
+ function mountComponent(vnode:any,container:any,parentComponent:any){
      //创建组件实例对象
-   const instance= createComponentInstance(vnode);
+   const instance= createComponentInstance(vnode,parentComponent);
    //调用setup
    setupComponent(instance)
    //调用render
@@ -57,12 +57,12 @@ function setuoRenderEffect(instance:any,container:any,vnode:any){
     //虚拟节点树（vnode 元素类型  mountElement）path 
     const {proxy}=instance
     const subTree=instance.render.call(proxy);
-    path(subTree,container);
+    path(subTree,container,instance);
     vnode.el= subTree.el
 }
 
 function mountChidren(vnode:any,container:any){
        vnode.children.forEach(function(v){
-         path(v,container)
+         path(v,container,'')
        })
 }
