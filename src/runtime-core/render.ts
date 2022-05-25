@@ -1,12 +1,19 @@
 import { setupComponent } from "./component";
 import { createComponentInstance } from "./component"
+import { creatAppApi } from "./createApp";
 import { createVNode } from "./vnode";
+export function createRenderer(option){
+  const {
+    createElement,
+    pathProp,
+    insert
+  }=option
 
-export function render(vnode,container,parentComponent){
+function render(vnode,container,parentComponent){
     //path (方便递归处理)
     //
     path(vnode,container,parentComponent)
- }
+
 
  function path(vnode,container,parentComponent){
       //判断是不是元素类型(element)
@@ -25,7 +32,7 @@ function processElement(vnode:any,container:any){
     
 }
 function mountElement(vnode:any,container:any){
-  const el=vnode.el=document.createElement(vnode.type);
+  const el=vnode.el=createElement(vnode.type)           //document.createElement(vnode.type);
   const {children,props} =vnode;
   //处理children
   if(typeof children=='string'){
@@ -36,9 +43,18 @@ function mountElement(vnode:any,container:any){
   
   for(const key in props){
     const val=props[key];
-    el.setAtteribute(key,val)
+
+    // const isOn=(key:string)=>/^on[A-Z]/.test(key);
+    // if(isOn(key)){
+    //   const event=key.slice(2).toLocaleLowerCase();
+    //   el.addEventListener(event,key)
+    // }else{
+    //   el.setAtteribute(key,val)
+    // }
+   pathProp(el,key,val)
   }
-  container.append(el)
+  // container.append(el)
+  insert(el,container)
 }
  function processComponent(vnode:any,container:any,parentComponent:any){
      //挂载组件
@@ -65,4 +81,9 @@ function mountChidren(vnode:any,container:any){
        vnode.children.forEach(function(v){
          path(v,container,'')
        })
+}
+ }
+ return {
+   creatApp:creatAppApi(render)
+ }
 }

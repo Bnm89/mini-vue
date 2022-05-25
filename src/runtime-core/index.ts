@@ -1,3 +1,4 @@
 //mini-vue 出口
-export {createApp} from './createApp'
+// export {createAppApi} from './createApp'
 export {h} from './h'
+export {createRenderer} from './render'
