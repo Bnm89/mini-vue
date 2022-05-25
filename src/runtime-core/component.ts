@@ -1,9 +1,11 @@
-
+import { initProps } from "./componentProps";
+import {PublicInstanceProxyHandlers} from './componentPubilcInstance'
 export function createComponentInstance(vnode: any) {
     const component = {
         vnode,
         type:vnode.type,
-        setupState:{}
+        setupState:{},
+        props:{}
     };
 
     return component
@@ -11,27 +13,21 @@ export function createComponentInstance(vnode: any) {
 export function setupComponent(instance) {
   
     //初始化 props
-    // initProps()
+     initProps(instance,instance.vnode.props)
     //初始化插槽
     // initSlots()
     //处理setup的返回值
     setupStatefulComponent(instance)
 }
+
 function setupStatefulComponent(instance: any) {
     const Component = instance.type;
       //代理对象
-    instance.proxy=new Proxy({},{
-        get(target,key){
-            const {setupState}=instance
-            if(key in setupState){
-                return setupState[key]
-            }
-        }
-    })
+    instance.proxy=new Proxy({instance},PublicInstanceProxyHandlers)
     //拿到setup
     const { setup } = Component
     if (setup) {
-        const setupResult= setup();
+        const setupResult= setup(instance.props);
         handleSetupResult(instance,setupResult)
     }
 }

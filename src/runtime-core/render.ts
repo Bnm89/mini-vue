@@ -1,5 +1,6 @@
 import { setupComponent } from "./component";
 import { createComponentInstance } from "./component"
+import { createVNode } from "./vnode";
 
 export function render(vnode,container){
     //path (方便递归处理)
@@ -24,7 +25,7 @@ function processElement(vnode:any,container:any){
     
 }
 function mountElement(vnode:any,container:any){
-  const el=document.createElement(vnode.type);
+  const el=vnode.el=document.createElement(vnode.type);
   const {children,props} =vnode;
   //处理children
   if(typeof children=='string'){
@@ -50,13 +51,14 @@ function mountElement(vnode:any,container:any){
    //调用setup
    setupComponent(instance)
    //调用render
-   setuoRenderEffect(instance,container)
+   setuoRenderEffect(instance,container,vnode)
  }
-function setuoRenderEffect(instance:any,container:any){
+function setuoRenderEffect(instance:any,container:any,vnode:any){
     //虚拟节点树（vnode 元素类型  mountElement）path 
     const {proxy}=instance
     const subTree=instance.render.call(proxy);
-    path(subTree,container)
+    path(subTree,container);
+    vnode.el= subTree.el
 }
 
 function mountChidren(vnode:any,container:any){
