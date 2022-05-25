@@ -1,13 +1,15 @@
 import { initProps } from "./componentProps";
 import {PublicInstanceProxyHandlers} from './componentPubilcInstance'
 import { emit } from "./compontentEmit";
+import { initSlots } from "./compontentSlots";
 export function createComponentInstance(vnode: any) {
     const component = {
         vnode,
         type:vnode.type,
         setupState:{},
         props:{},
-        emit:()=>{}
+        emit:()=>{},
+        slots:{}
     }; 
     component.emit=emit.bind(null,component) as any
     return component
@@ -17,7 +19,7 @@ export function setupComponent(instance) {
     //初始化 props
      initProps(instance,instance.vnode.props)
     //初始化插槽
-    // initSlots()
+    initSlots(instance,instance.vnode.children)
     //处理setup的返回值
     setupStatefulComponent(instance)
 }
