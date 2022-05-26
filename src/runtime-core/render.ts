@@ -6,7 +6,7 @@ export function createRenderer(option){
   const {
     createElement,
     pathProp,
-    insert
+    insert,
   }=option
 
 function render(vnode,container,parentComponent){
@@ -87,3 +87,4 @@ function mountChidren(vnode:any,container:any){
    creatApp:creatAppApi(render)
  }
 }
+
