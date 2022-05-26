@@ -5,8 +5,8 @@ class ReactiveEffect {
         this._fn = fn
     }
     run() {
-        activeEffect=this
-        this._fn()
+    activeEffect=this
+      return this._fn()
     }
 }
 //使用map存储对象 一个map对应一个key
@@ -40,5 +40,6 @@ let activeEffect;
 export function effect(fn) {
     //一上来就需要调用fn
     const _effect = new ReactiveEffect(fn);
-    _effect.run()
+    _effect.run();
+    return _effect.run.bind(_effect)
 }
