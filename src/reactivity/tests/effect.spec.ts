@@ -3,7 +3,7 @@ import  {effect} from '../effect'
 import {reactive} from '../reactive'
 describe("effect",()=>{
     it('happy path',()=>{
-        const user=reactive({
+        const user:any=reactive({
             age:10
         })
         let nextage;
