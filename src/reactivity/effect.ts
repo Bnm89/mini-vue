@@ -1,33 +1,41 @@
-import {extend} from '../shared/index'
-
+import { extend } from '../shared/index'
+let activeEffect;
+let shouldtrack;
 
 class ReactiveEffect {
     private _fn: any
-    deps:[]
-    active=true
-    onStop?:()=>{}
-    constructor(fn,public scheduler?) {
+    deps: []
+    active = true
+    onStop?: () => {}
+    constructor(fn, public scheduler?) {
         this._fn = fn
     }
     run() {
-    activeEffect=this
-      return this._fn()
+
+        if (!this.active) {
+            return this._fn()
+        }
+        activeEffect = this;
+        shouldtrack = true
+        const result = this._fn()
+        shouldtrack = false
+        return result
     }
-    stop(){
-        if(this.active){
+    stop() {
+        if (this.active) {
             cleanupEffect(this);
-            if(this.onStop){
+            if (this.onStop) {
                 this.onStop()
             }
-            this.active=false
+            this.active = false
         }
-        
+
     }
 }
-function cleanupEffect(effect){
-    effect.deps.forEach((dep:any,index)=>{
+function cleanupEffect(effect) {
+    effect.deps.forEach((dep: any, index) => {
         dep.delete(effect)
-    })  
+    })
 }
 //使用map存储对象 一个map对应一个key
 const targetMap = new Map()
@@ -41,40 +49,40 @@ export function track(target, key) {
     let dep = depsMap.get(key);
     if (!dep) {
         dep = new Set();
-        depsMap.set(key,dep)
+        depsMap.set(key, dep)
     }
-    if(!activeEffect)return
+    if (!activeEffect) return
+    if (!shouldtrack) return
     dep.add(activeEffect);
-   activeEffect.deps.push(dep)
+    activeEffect.deps.push(dep)
 }
 //触发依赖
-export function trigger(target,key){
-    let depsMap=targetMap.get(target);
-    let dep=depsMap.get(key);
-    for(const effect of dep){
-        if(effect.scheduler){
+export function trigger(target, key) {
+    let depsMap = targetMap.get(target);
+    let dep = depsMap.get(key);
+    for (const effect of dep) {
+        if (effect.scheduler) {
             effect.scheduler()
-        }else{
+        } else {
             effect.run()
         }
-        
+
     }
 }
 
-let activeEffect;
 
-export function effect(fn,options:any={}) {
+export function effect(fn, options: any = {}) {
     //一上来就需要调用fn
-    const scheduler=options.scheduler
-    const _effect = new ReactiveEffect(fn,scheduler);
+    const scheduler = options.scheduler
+    const _effect = new ReactiveEffect(fn, scheduler);
     // _effect.onStop=options.onStop
-    extend(_effect,options)
+    extend(_effect, options)
     _effect.run();
-     const runner:any= _effect.run.bind(_effect);
-     runner.effect=_effect
+    const runner = _effect.run.bind(_effect);
+    runner.effect = _effect
     return runner
 }
 
-export function stop(runner){
-  runner.stop()
+export function stop(runner) {
+    runner.stop()
 }
