@@ -1,7 +1,9 @@
+import { effect } from "../reactivity/effect";
 import { setupComponent } from "./component";
 import { createComponentInstance } from "./component"
 import { creatAppApi } from "./createApp";
 import { createVNode } from "./vnode";
+import {Fragment,Text} from './vnode'
 export function createRenderer(option){
   const {
     createElement,
@@ -14,22 +16,47 @@ function render(vnode,container,parentComponent){
     //
     path(vnode,container,parentComponent)
 
-
- function path(vnode,container,parentComponent){
+//n1代表老的虚拟节点 n2代表新的虚拟节点
+ function path(n1,n2,container,parentComponent){
       //判断是不是元素类型(element)
-   
+   const {type,shapeFlag}=n2
     //处理组件 如何区分element还是component 类型
-    if(vnode.type=='string'){
-      processElement(vnode ,container)
-    }else if(vnode.tyoe=='object'){
-      processComponent(vnode,container,parentComponent);
+   
+    switch(type){
+      case Fragment:
+      processFragment(n2,container)
+      case Text:
+        processText();
+        break
+        default:
+          if(vnode.type=='string'){
+            processElement(n2 ,container)
+          }else if(shapeFlag==shapeFlag.STATEFUL_COMPONENT){
+            processComponent(n2,container,parentComponent);
+          }
     }
-    
    
  }
-function processElement(vnode:any,container:any){
-  mountElement(vnode,container)
+ function processText(vnode:any,container:any){
+    const {children}=vnode;
+    const textNode=vnode.el=document.createTextNode(children);
+    container.append(textNode)
+ }
+ function processFragment(vnode:any,container:any){
+      mountChidren(vnode,container)
+ }
+function processElement(n1,n2:any,container:any){
+  if(!n1){
+    mountElement(vnode,container)
+  }else{
+    pathchElement(n1,n2,container)
+  }
+  
     
+}
+
+function pathchElement(n1,n2,container ){
+
 }
 function mountElement(vnode:any,container:any){
   const el=vnode.el=createElement(vnode.type)           //document.createElement(vnode.type);
@@ -60,23 +87,35 @@ function mountElement(vnode:any,container:any){
      //挂载组件
      mountComponent(vnode,container,parentComponent)
  }
-
  function mountComponent(vnode:any,container:any,parentComponent:any){
      //创建组件实例对象
    const instance= createComponentInstance(vnode,parentComponent);
    //调用setup
    setupComponent(instance)
    //调用render
-   setuoRenderEffect(instance,container,vnode)
+   setupRenderEffect(instance,container,vnode)
  }
-function setuoRenderEffect(instance:any,container:any,vnode:any){
-    //虚拟节点树（vnode 元素类型  mountElement）path 
-    const {proxy}=instance
-    const subTree=instance.render.call(proxy);
-    path(subTree,container,instance);
-    vnode.el= subTree.el
-}
 
+function setupRenderEffect(instacne:any,initialVNode,container){
+  effect(()=>{
+    if(!instacne.isMounted){
+      //初始化
+      const {proxy}=instacne
+      const subTree=instacne.subTree=instacne.render.call(proxy);
+      path(null,subTree,container,instacne);
+      vnode.el= subTree.el
+      instacne.isMounted=true
+    }else{
+      const {proxy}=instacne
+      const subTree=instacne.render.call(proxy);
+      const prevSubTree=instacne.subTree
+      instacne.subTree=subTree
+      path(prevSubTree,subTree,container,instacne);
+      //更新逻辑
+    }
+   
+  })
+}
 function mountChidren(vnode:any,container:any){
        vnode.children.forEach(function(v){
          path(v,container,'')
