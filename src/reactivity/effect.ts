@@ -4,7 +4,7 @@ let shouldtrack;
 
 class ReactiveEffect {
     private _fn: any
-    deps: []
+    deps:[]
     active = true
     onStop?: () => {}
     constructor(fn, public scheduler?) {
@@ -36,11 +36,13 @@ function cleanupEffect(effect) {
     effect.deps.forEach((dep: any, index) => {
         dep.delete(effect)
     })
+    effect.deps.length=0
 }
 //使用map存储对象 一个map对应一个key
 const targetMap = new Map()
 //收集依赖
 export function track(target, key) {
+    if(!isTracking()) return
     let depsMap = targetMap.get(target);
     if (!depsMap) {
         depsMap = new Map();
@@ -51,10 +53,13 @@ export function track(target, key) {
         dep = new Set();
         depsMap.set(key, dep)
     }
-    if (!activeEffect) return
-    if (!shouldtrack) return
+   if(dep.has(activeEffect)) return
     dep.add(activeEffect);
     activeEffect.deps.push(dep)
+}
+
+function isTracking(){
+    return shouldtrack && activeEffect!=undefined
 }
 //触发依赖
 export function trigger(target, key) {
