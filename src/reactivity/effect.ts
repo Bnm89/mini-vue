@@ -2,7 +2,7 @@ import { extend } from '../shared/index'
 let activeEffect;
 let shouldtrack;
 
-class ReactiveEffect {
+ export class ReactiveEffect {
     private _fn: any
     deps:[]
     active = true
